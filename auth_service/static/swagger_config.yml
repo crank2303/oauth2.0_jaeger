@@ -1,0 +1,366 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  description: API services for online-cinema
+  version: '1.0'
+servers:
+  - url: http://auth_service:8088/api/v1
+tags:
+  - name: Managing Roles
+    description: API for CRUD roles
+components:
+  schemas:
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 3cd2b4b0c-36f4-3488-a93b-3bb72029f46
+        username:
+          type: string
+          example: theUser
+        password:
+          type: string
+          example: '12345'
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 3cd2b4b0c-36f4-3488-a93b-3bb72029f46
+        name:
+          type: string
+          example: administrator
+    UsersRoles:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 3bb72029f46-36f4-3488-a93b-3bb72029f46
+        user_id:
+          type: string
+          example: 3cd2b4b0c-3488-36f4-a93b-3bb72029f46
+        role_id:
+          type: string
+          example: 3bb72029f46-36f4-3488-a93b-3cd2b4b0c
+    AuthLogs:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3bb72029f46-a93b-3488-36f4-3cd2b4b0c
+        user_id:
+          type: string
+          example: 3cd2b4b0c-36f4-3488-a93b-3bb72029f46
+        user_agent:
+          type: string
+          example: "Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0)"
+        log_type:
+          type: string
+          example: login, logout, refresh
+        datetime:
+          format: datetime
+          example: 'Sun, 15 Feb 2023 08:15:44 +0300'
+        ip_address:
+          type: string
+          example: "127.0.0.1"
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+    BaseAuth:
+      type: http
+      scheme: basic
+security:
+  - Bearer: []
+paths:
+  /create_role:
+    post:
+      tags:
+        - Managing Roles
+      summary: Добавление новой системной роли
+      description: Получаем и обрабатываем запрос на добавление новой роли. Проверяем токен пользователя и соответствующие доступы.
+      operationId: createRole
+      requestBody:
+        description: Created role object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: New role was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '401':
+          description: New role is empty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Role already existed in database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /roles_list:
+    get:
+      tags:
+        - Managing Roles
+      summary: Получить список всех ролей
+      description: Запрос возвращает список всех ролей, доступных на текущий момент в системе
+      operationId: getRoles
+      responses:
+        '200':
+          description: List of roles
+        '401':
+          description: Could not verify
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /change_role:
+    put:
+      tags:
+        - Managing Roles
+      summary: Изменение текущей роли
+      description: Принимаем запрос на изменение выбранной роли. Проверяем поступившие параметры.
+      operationId: changeRole
+      requestBody:
+        description: Created role object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: new_name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was renamed
+        '404':
+          description: Role doesnt exist in database
+  /delete_role:
+    delete:
+      tags:
+        - Managing Roles
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: New role was deleted
+        '404':
+          description: Role doesnt exist in database
+  /register:
+    post:
+      tags:
+        - Managing Users
+      summary: Создание нового пользователя
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: password
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: New user was created
+  /login:
+    post:
+      tags:
+        - Managing Users
+      summary: Авторизация существующего пользователя
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: password
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: User has authorized
+  /change_login:
+    post:
+      tags:
+        - Personal account
+      parameters:
+        - in: query
+          name: new_username
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Username was successfully changed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Login already existed
+  /change_password:
+    post:
+      tags:
+        - Personal account
+      parameters:
+        - in: query
+          name: new_password
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Password was successfully changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Could not change password
+  /login_history:
+    get:
+      tags:
+        - Personal account
+      description: Login history of current user
+      responses:
+        '200':
+          description: User's login history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLogs'
+        '401':
+          description: Couldnot verify
+  /logout:
+    delete:
+      tags:
+        - Personal account
+      responses:
+        '200':
+          description: revoke access/refresh token
+        '401':
+          description: Could not verify token
+  /refresh:
+    get:
+      tags:
+        - Personal account
+      responses:
+        '200':
+          description: new pair of access and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Could not verify token
+  /assign_role:
+    post:
+      tags:
+        - Managing User's roles
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was assigned to user
+        '401':
+          description: Role or username is empty
+        '500':
+          description: Could not assign role to user
+  /detach_role:
+    delete:
+      tags:
+        - Managing User's roles
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was assigned to user
+        '401':
+          description: Role or username is empty
+        '500':
+          description: Could not assign role to user
+  /users_roles:
+    get:
+      tags:
+        - Managing User's roles
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of user's roles
+        '401':
+          description: Could not verify

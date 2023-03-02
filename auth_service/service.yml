@@ -1,0 +1,739 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger FlaskAUTH
+  license:
+    name: MIT
+servers:
+  - url: http://auth_service:8088/v1
+
+paths:
+  /auth/signup:
+    post:
+      summary: Регистрация нового пользователя
+      description: Эндпоинт регистрации нового пользователя. Проверяем полученные данные, наличие пользователя в системе, возвращаем данные зарегистрированного пользователя и токен доступа, либо соответствующую ошибку.
+      operationId: authSignup
+      tags:
+        - auth_system
+      parameters:
+        - name: userRegisterInfo
+          in: query
+          required: true
+          description: Данные нового пользователя
+          schema:
+            $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          description: Возвращаем данные по зарегистрированному пользователю
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '400':
+          description: Данные не прошли валидацию, возвращаем набор ошибок
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '409':
+          description: Пользователь с такими данными уже есть в системе
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/signin:
+    post:
+      summary: Авторизация пользователя
+      description: Эндпоинт авторизации пользователя. Проверяем полученные данные, наличие пользователя в системе, возвращаем данные пользователя и токен доступа, либо соответствующую ошибку.
+      operationId: authSignin
+      tags:
+        - auth_system
+      parameters:
+        - name: userLoginInfo
+          in: query
+          required: true
+          description: Данные пользователя
+          schema:
+            type: object
+            properties:
+              login:
+                type: string
+                example: "iIvanov"
+              password:
+                type: string
+                example: "dk&as1op3~wq"
+      responses:
+        '200':
+          description: Пользователь успешно авторизован
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwtAuthAccess=abcde.1234; jwtAuthRefresh=abcde.3452; Path=/; HttpOnly
+        '401':
+          description: Не удалось авторизовать пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Пользователь с такими данными не найден в системе
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/logout:
+    delete:
+      summary: Выход пользователя
+      description: Эндпоинт выхода пользователя. Проверяем полученные данные. Записываем логи, обнуляем токены, либо возвращаем соответствующую ошибку.
+      operationId: authSignin
+      tags:
+        - auth_system
+      parameters:
+        - name: userInfo
+          in: query
+          required: true
+          description: Токен пользователя
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                example: "token-3cd2b4b0c36f43488a93b3bb72029f46"
+      responses:
+        '200':
+          description: Пользователь успешно разлогинен
+        '401':
+          description: Не удалось разлогинить пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - jwtAuthAccess: [ ]
+        - jwtAuthRefresh: [ ]
+  /auth/refresh:
+    post:
+      summary: Обновляем токен пользователя
+      description: Эндпоинт обновления токена пользователя. Проверяем полученные данные. Записываем логи, обновляем токены, либо возвращаем соответствующую ошибку.
+      operationId: authRefresh
+      tags:
+        - auth_system
+      parameters:
+        - name: tokenRefresh
+          in: query
+          required: true
+          description: Токен пользователя
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                example: "token-3cd2b4b0c36f43488a93b3bb72029f46"
+      responses:
+        '200':
+          description: Токены пользователя успешно обновлены
+        '401':
+          description: Не удалось обновить токены пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - jwtAuthAccess: [ ]
+  /user/change-info:
+    post:
+      summary: Обновляем УЗ пользователя
+      description: Эндпоинт обновления УЗ пользователя. Проверяем полученные данные. Записываем логи, обновляем токены, либо возвращаем соответствующую ошибку.
+      operationId: userUpdate
+      tags:
+        - user_info
+      parameters:
+        - name: userUpdate
+          in: query
+          required: true
+          description: Токен пользователя
+          schema:
+            $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Данные пользователя успешно изменены
+        '401':
+          description: Не удалось изменить данные пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '403':
+          description: Не достаточно прав для изменения данных пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - jwtAuthAccess: [ ]
+  /user/auth-logs:
+    get:
+      summary: Лог действий пользователя
+      description: Эндпоинт получения логов по действиям пользователя.
+      operationId: userAuthLog
+      tags:
+        - user_info
+      parameters:
+        - name: userAuthLog
+          in: query
+          required: true
+          description: Токен пользователя
+          schema:
+            $ref: '#/components/schemas/AuthLogs'
+      responses:
+        '200':
+          description: Лог пользователя успешно предоставлен
+        '401':
+          description: Не удалось загрузить данные логов пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '403':
+          description: Не достаточно прав для получения данных логов пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/add-role:
+    post:
+      summary: Добавление роли пользователю
+      description: Эндпоинт добавления выбранной роли для выбранного пользователя
+      operationId: userAuthAddRole
+      tags:
+        - user_info
+      parameters:
+        - name: userAuthAddRole
+          in: query
+          required: true
+          description: Массив ролей/пользователей
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: string
+                example: "3cd2b4b0c-36f4-3488-a93b-3bb72029f46"
+              role_id:
+                type: string
+                example: "3bb72029f46-a93b-3488-36f4-3cd2b4b0c"
+      responses:
+        '200':
+          description: Роль успешно предоставлена
+        '401':
+          description: Не удалось предоставить соответствующую роль
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '403':
+          description: Не достаточно прав для выполнения действия
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/delete-role:
+    delete:
+      summary: Удаление роли пользователю
+      description: Эндпоинт удаления выбранной роли для выбранного пользователя
+      operationId: userAuthdeleteRole
+      tags:
+        - user_info
+      parameters:
+        - name: userAuthDeleteRole
+          in: query
+          required: true
+          description: Массив ролей/пользователей
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: string
+                example: "3cd2b4b0c-36f4-3488-a93b-3bb72029f46"
+              role_id:
+                type: string
+                example: "3bb72029f46-a93b-3488-36f4-3cd2b4b0c"
+      responses:
+        '200':
+          description: Роль успешно удалена
+        '401':
+          description: Не удалось удалить соответствующую роль
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '403':
+          description: Не достаточно прав для выполнения действия
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /roles:
+    get:
+      summary: Список всех ролей
+      description: Получение списка доступных ролей в системе. Необходима проверка на доступ - показываем только определённым ролям.
+      operationId: listRoles
+      tags:
+        - roles
+      parameters:
+        - name: limit
+          in: query
+          description: Максимальное количество записей (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Список доступных ролей
+          headers:
+            x-next:
+              description: Ссылка на следующую страницу запроса
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Role not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Создание новой роли
+      description: Принимаем запрос на создание новой роли, проверяем права доступа, обрабатываем ошибки.
+      operationId: createRole
+      tags:
+        - roles
+      responses:
+        '200':
+          description: Возвращаем данные по созданной роли
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Обновление существующей роли
+      description: Принимаем запрос на обновление существующей роли. Проверяем права пользователя, наличие роли, обрабатываем ошибки.
+      operationId: updateRole
+      tags:
+        - roles
+      parameters:
+        - name: roleId
+          in: query
+          required: true
+          description: ID роли, которую нужно обновить
+      responses:
+        '200':
+          description: Возвращаем данные по обновлённой роли
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Role not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Удаление существующей роли
+      description: Принимаем запрос на удаление роли. Проверяем права пользователя, наличие роли, обрабатываем ошибки.
+      operationId: deleteRole
+      tags:
+        - roles
+      parameters:
+        - name: roleId
+          in: query
+          required: true
+          description: ID роли, которую нужно удалить
+      responses:
+        '200':
+          description: Возвращаем ответ об успешном удалении роли.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Role not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /roles/{roleId}:
+    get:
+      summary: Информация по выбранной роли
+      operationId: showRoleById
+      tags:
+        - roles
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          description: ID роли, которую нужно получить
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Возвращаем данные по запрошенной роли
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /permissions:
+    get:
+      summary: Список всех привилегий
+      operationId: listPermissions
+      tags:
+        - permissions
+      parameters:
+        - name: limit
+          in: query
+          description: Максимальное количество записей (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Список доступных привилегий
+          headers:
+            x-next:
+              description: Ссылка на следующую страницу запроса
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Permissions"
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Permission not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Создание новой привилегии
+      operationId: createPermission
+      tags:
+        - permissions
+      responses:
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Обновление существующей привилегии
+      operationId: updatePermission
+      tags:
+        - permissions
+      parameters:
+        - name: permissionId
+          in: query
+          required: true
+          description: ID привилегии, которую нужно обновить
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Role not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Удаление существующей привилегии
+      operationId: deleteRole
+      tags:
+        - permissions
+      parameters:
+        - name: permissionId
+          in: query
+          required: true
+          description: ID привилегии, которую нужно удалить
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        '201':
+          description: Null response
+        '400':
+          description: Request data is invalid
+        '403':
+          description: Permission denied
+        '404':
+          description: Role not found
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /permissions/{permissionId}:
+    get:
+      summary: Информация по выбранной привилегии
+      operationId: showPermissionById
+      tags:
+        - permissions
+      parameters:
+        - name: permissionId
+          in: path
+          required: true
+          description: ID привилегии, которую нужно получить
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roles"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - login
+        - password
+        - email
+        - fio
+      properties:
+        login:
+          type: string
+          example: "iIvanov"
+        password:
+          type: string
+          example: "dk&as1op3~wq"
+        email:
+          type: string
+          example: "iivanov@mail.com"
+        fio:
+          type: string
+          example: "Иванов Иван Иванович"
+    ChangePassword:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+          example: "dk&as1op3~wq"
+        new_password:
+          type: string
+          example: "ldk)dk2dj0lld"
+    AuthLogs:
+      type: object
+      required:
+        - user_id
+        - log_type
+        - datetime
+      properties:
+        user_id:
+          type: string
+          example: "3cd2b4b0c-36f4-3488-a93b-3bb72029f46"
+        user_agent:
+          type: string
+          example: "Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0)"
+        log_type:
+          type: string
+          example: "login | logout | password_change"
+        datetime:
+          type: string
+          format: datetime
+          example: 'Sun, 15 Feb 2023 08:15:44 +0300'
+        ip_address:
+          type: string
+          example: "127.0.0.1"
+    Roles:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+    Permissions:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    Success:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    jwtAuthAccess:
+      type: apiKey
+      in: cookie
+      name: SITE_NAME_KEY
+    jwtAuthRefresh:
+      type: apiKey
+      in: cookie
+      name: SITE_NAME_KEY
+
