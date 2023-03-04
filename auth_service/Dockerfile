@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y netcat
 
 COPY . .
 
-RUN alembic upgrade head
-
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["python", "./pywsgi.py"]
+
+CMD alembic upgrade head

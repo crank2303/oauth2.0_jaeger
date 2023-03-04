@@ -100,7 +100,7 @@ def app_run():
     app = create_app()
     init_db(app)
     app.app_context().push()
-    db.create_all()
+    # db.create_all()
     return app
 
 
