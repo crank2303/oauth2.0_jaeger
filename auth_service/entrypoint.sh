@@ -13,6 +13,5 @@ done
 
 export FLASK_APP=pywsgi
 export FLASK_RUN_PORT=8088
-
 alembic upgrade head
 python3 -m flask run --with-threads --reload --host=0.0.0.0
