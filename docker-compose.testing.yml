@@ -6,7 +6,7 @@ services:
     container_name: PostgresDB_tests
     restart: on-failure
     ports:
-      - "5433:5432"
+      - "5439:5432"
     env_file:
       - auth_service/tests/utils/.env
     expose:
