@@ -16,7 +16,7 @@ from api.v1.blueprint import blueprint
 from core.settings import settings
 from database.cache_redis import redis_app
 from database.models import Roles
-from database.postgresql import init_db, db
+# from database.postgresql import init_db, db
 from database.service import create_user, assign_role_to_user, get_users_roles
 
 ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
@@ -73,34 +73,34 @@ def create_app():
     
     return app
     
-    @jwt.token_in_blocklist_loader
-    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
-        user_agent = request.headers['user_agent']
-        jti = jwt_payload["jti"]
-        key = ':'.join((jti, user_agent))
-        token_in_redis = redis_app.get(key)
-        return token_in_redis is not None
+    # @jwt.token_in_blocklist_loader
+    # def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    #     user_agent = request.headers['user_agent']
+    #     jti = jwt_payload["jti"]
+    #     key = ':'.join((jti, user_agent))
+    #     token_in_redis = redis_app.get(key)
+    #     return token_in_redis is not None
     
-    @jwt.additional_claims_loader
-    def add_role_to_token(identity):
-        roles = get_users_roles(identity)
-        is_administrator = False
-        is_manager = False
-        for role in roles:
-            if role.name == 'admin':
-                is_administrator = True
-            if role.name == 'manager':
-                is_manager = True
+    # @jwt.additional_claims_loader
+    # def add_role_to_token(identity):
+    #     roles = get_users_roles(identity)
+    #     is_administrator = False
+    #     is_manager = False
+    #     for role in roles:
+    #         if role.name == 'admin':
+    #             is_administrator = True
+    #         if role.name == 'manager':
+    #             is_manager = True
         
-        return {'is_administrator': is_administrator,
-                'is_manager': is_manager}
+    #     return {'is_administrator': is_administrator,
+    #             'is_manager': is_manager}
 
 
 def app_run():
     app = create_app()
-    init_db(app)
+    # init_db(app)
     app.app_context().push()
-    db.create_all()
+    # db.create_all()
     return app
 
 

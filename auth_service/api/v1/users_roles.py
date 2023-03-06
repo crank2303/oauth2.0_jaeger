@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from flask import jsonify, request, make_response
 
+from database.postgresql import Sessionlocal
 from database.models import Roles, Users
 from database.service import get_roles_by_user, assign_role_to_user, detach_role_from_user
 from roles.administrator import required
@@ -23,10 +24,10 @@ def assign_role():
     role = request.json.get("role", None)
     if not role or not username:
         return make_response('Role or username is empty', HTTPStatus.UNAUTHORIZED)
-    db_role = Roles.query.filter_by(name=role).first()
+    db_role = Sessionlocal().query(Roles).filter_by(name=role).first()
     if not db_role:
         return make_response('Role does not exist', HTTPStatus.CONFLICT)
-    user_db = Users.query.filter_by(login=username).first()
+    user_db = Sessionlocal().query(Users).filter_by(login=username).first()
     if not user_db:
         return make_response('User does not exist', HTTPStatus.CONFLICT)
     assign_role_to_user(user_db, db_role)
@@ -39,10 +40,10 @@ def detach_role():
     role = request.json.get('role', None)
     if not role or not username:
         return make_response('Role or username is empty', HTTPStatus.UNAUTHORIZED)
-    db_role = Roles.query.filter_by(name=role).first()
+    db_role = Sessionlocal().query(Roles).filter_by(name=role).first()
     if not db_role:
         return make_response('Role does not exist', HTTPStatus.CONFLICT)
-    user_db = Users.query.filter_by(login=username).first()
+    user_db = Sessionlocal().query(Users).filter_by(login=username).first()
     if not user_db:
         return make_response('User does not exist', HTTPStatus.CONFLICT)
     detach_role_from_user(user_db, db_role)
