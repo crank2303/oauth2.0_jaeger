@@ -51,6 +51,7 @@ def change_username(user: Users, username: str):
     with Sessionlocal() as session:
         session.commit()
 
+
 def change_password(user: Users, password: str):
     hashed_password = generate_password_hash(password, method='sha256')
     user.password = hashed_password

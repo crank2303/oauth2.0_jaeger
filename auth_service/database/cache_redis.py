@@ -41,5 +41,3 @@ class RedisStorage(AsyncCacheStorage):
 
     async def get(self, key: str, data: any):
         self.redis.get(key)
-
-

@@ -43,6 +43,11 @@ services:
     expose:
       - 6379
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+
 
 volumes:
   postgres_volume:
