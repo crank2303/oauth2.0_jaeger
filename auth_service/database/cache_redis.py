@@ -1,11 +1,8 @@
 import abc
-import os
-
 from datetime import timedelta
 from typing import Optional, Any
 
 import redis
-
 from aioredis import Redis
 
 from core.settings import settings

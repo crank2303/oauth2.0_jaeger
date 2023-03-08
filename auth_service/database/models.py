@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, Column, String, DateTime, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum as SQLEnum
-from flask_sqlalchemy import SQLAlchemy
 
-from .postgresql import Base
 from core.utils import DeviceType
+from .postgresql import Base
 
 
 class Users(Base):
