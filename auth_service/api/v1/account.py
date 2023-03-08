@@ -7,17 +7,17 @@ from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import get_jti, get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from database.cache_redis import redis_app
 from database.models import Users, AuthLogs
+from database.postgresql import Sessionlocal
 from database.service import auth_log, create_user, change_password, change_username
 
 ACCESS_EXPIRES = timedelta(hours=1)
 REFRESH_EXPIRES = timedelta(days=30)
 
 storage = redis_app
-
 
 def sign_up():
     username = request.values.get("email", None)
@@ -26,7 +26,7 @@ def sign_up():
         return make_response('email or password are empty!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
-    user = Users.query.filter_by(login=username).first()
+    user = Sessionlocal().query(Users).filter_by(login=username).first()
     if user:
         return make_response('Email has already registered!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -54,7 +54,7 @@ def login():
         return make_response('Email or password are empty!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
-    user = Users.query.filter_by(login=auth.username).first()
+    user = Sessionlocal().query(Users).filter_by(login=auth.username).first()
     if not user:
         return make_response('Username does not exist!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})

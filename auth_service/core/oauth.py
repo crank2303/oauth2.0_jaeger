@@ -1,8 +1,8 @@
 import enum
 
 from authlib.integrations.flask_client import OAuth
-
 from core.config import oauth_settings
+
 from database.cache_redis import redis_app
 
 oauth = OAuth()

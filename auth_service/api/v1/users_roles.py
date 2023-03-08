@@ -2,8 +2,8 @@ from http import HTTPStatus
 
 from flask import jsonify, request, make_response
 
-from database.postgresql import Sessionlocal
 from database.models import Roles, Users
+from database.postgresql import Sessionlocal
 from database.service import get_roles_by_user, assign_role_to_user, detach_role_from_user
 from roles.administrator import required
 

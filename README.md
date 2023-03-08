@@ -1,20 +1,42 @@
 # Проектная работа 7 спринта
+Авторизация с использованием Oauth (Google и Yandex)
 
-Упростите регистрацию и аутентификацию пользователей в Auth-сервисе, добавив вход через социальные сервисы. Список сервисов выбирайте исходя из целевой аудитории онлайн-кинотеатра — подумайте, какими социальными сервисами они пользуются. Например, использовать [OAuth от Github](https://docs.github.com/en/free-pro-team@latest/developers/apps/authorizing-oauth-apps){target="_blank"} — не самая удачная идея. Ваши пользователи не разработчики и вряд ли имеют аккаунт на Github. А вот добавить Twitter, Facebook, VK, Google, Yandex или Mail будет хорошей идеей.
+Трейсинг запросов
 
-Вам не нужно делать фронтенд в этой задаче и реализовывать собственный сервер OAuth. Нужно реализовать протокол со стороны потребителя.
+Партицирование
 
-Информация по OAuth у разных поставщиков данных: 
+Интеграция с внешними сервисами
 
-- [Twitter](https://developer.twitter.com/en/docs/authentication/overview){target="_blank"},
-- [Facebook](https://developers.facebook.com/docs/facebook-login/){target="_blank"},
-- [VK](https://vk.com/dev/access_token){target="_blank"},
-- [Google](https://developers.google.com/identity/protocols/oauth2){target="_blank"},
-- [Yandex](https://yandex.ru/dev/oauth/?turbo=true){target="_blank"},
-- [Mail](https://api.mail.ru/docs/guides/oauth/){target="_blank"}.
+Rate limit
 
-## Дополнительное задание
+# Как развернуть проект
 
-Реализуйте возможность открепить аккаунт в соцсети от личного кабинета. 
+Склонируйте репозиторий
+```
+git clone git@github.com:crank2303/Auth_sprint_2.git
+```
 
-Решение залейте в репозиторий текущего спринта и отправьте на ревью.
+Перейдите в каталог с проектом
+```
+cd Auth_sprint_2
+```
+
+Скопируйте файл настроек окружения проекта
+```
+cp .env.example .env
+```
+
+Запустите сборку контейнера
+```
+docker compose up -d --build
+```
+<br>
+<hr>
+
+# Документация сваггер
+
+Доступна по адресу: <a href="http://localhost:8087/api/docs">http://localhost:8087/api/docs
+
+# Трейсинг запросов
+
+Доступна по адресу: <a href="http://localhost:16686/">http://localhost:16686/
