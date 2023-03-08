@@ -1,10 +1,4 @@
-
-from pathlib import Path
-
-from logging import config as logging_config
 from pydantic import BaseSettings, Field
-
-from core.logger import LOGGING
 
 
 class Settings(BaseSettings):
@@ -29,4 +23,36 @@ class Settings(BaseSettings):
     jwt_access_token_expires: int = Field(120, env='JWT_ACCESS_TOKEN_EXPIRES')
     jwt_refresh_token_expires: int = Field(120, env='JWT_REFRESH_TOKEN_EXPIRES')
 
+    limiter_config: str = Field('10 per 1 minute', env='LIMITER_CONFIG')
+    
+
+class JaegerSettings(Settings):
+    agent_host: str = Field(..., env='JAEGER_HOST')
+    agent_port: int = Field(..., env='JAEGER_AGENT_PORT')
+    sampling_ratio: float = Field(..., env='JAEGER_SAMPLING_RATIO')
+    auth_project_name: str = Field(..., env='AUTH_PROJECT_NAME')
+    
+
+class OauthClientSettings(Settings):
+    google_client_id: str = Field(..., env='GOOGLE_CLIENT_ID')
+    google_client_secret: str = Field(..., env='GOOGLE_CLIENT_SECRET')
+    google_server_metadata_url: str = Field(
+        'https://accounts.google.com/.well-known/openid-configuration',
+        env='GOOGLE_SERVER_METADATA_URL'
+    )
+
+    yandex_client_id: str = Field(..., env='YANDEX_CLIENT_ID')
+    yandex_client_secret: str = Field(..., env='YANDEX_CLIENT_SECRET')
+    yandex_access_token_url: str = Field('https://oauth.yandex.ru/token', env='YANDEX_ACCESS_TOKEN_URL')
+    yandex_authorize_url: str = Field('https://oauth.yandex.ru/authorize', env='YANDEX_AUTHORIZE_URL')
+    yandex_api_base_url: str = Field('https://login.yandex.ru/info', env='YANDEX_API_BASE_URL')
+
 settings = Settings()
+oauth_settings = OauthClientSettings()
+jaeger_settings = JaegerSettings()
+
+GOOGLE_CLIENT_ID = oauth_settings.google_client_id
+GOOGLE_CLIENT_SECRET = oauth_settings.google_client_secret
+
+YANDEX_CLIENT_ID = oauth_settings.yandex_client_id
+YANDEX_CLIENT_SECRET = oauth_settings.yandex_client_secret
