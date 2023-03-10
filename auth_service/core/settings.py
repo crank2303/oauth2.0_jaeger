@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     jwt_refresh_token_expires: int = Field(120, env='JWT_REFRESH_TOKEN_EXPIRES')
 
     limiter_config: str = Field('10 per 1 minute', env='LIMITER_CONFIG')
+    flask_debug: bool = Field(False, env='FLASK_DEBUG')
     
 
 class JaegerSettings(Settings):
@@ -46,6 +47,7 @@ class OauthClientSettings(Settings):
     yandex_access_token_url: str = Field('https://oauth.yandex.ru/token', env='YANDEX_ACCESS_TOKEN_URL')
     yandex_authorize_url: str = Field('https://oauth.yandex.ru/authorize', env='YANDEX_AUTHORIZE_URL')
     yandex_api_base_url: str = Field('https://login.yandex.ru/info', env='YANDEX_API_BASE_URL')
+
 
 settings = Settings()
 oauth_settings = OauthClientSettings()

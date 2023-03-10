@@ -7,7 +7,8 @@ from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import get_jti, get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
+from apiflask import pagination_builder
 
 from database.cache_redis import redis_app
 from database.models import Users, AuthLogs
@@ -112,18 +113,15 @@ def refresh():
 
 
 @jwt_required()
-def login_history():
+def login_history(query):
     user_id = get_jwt_identity()
 
     history = AuthLogs.query.filter_by(user_id=user_id). \
         order_by(AuthLogs.auth_date.desc()). \
-        limit(10)
-    output = []
-    for record in history:
-        record_data = {'user_agent': record.user_agent,
-                       'auth_date': record.auth_date}
-        output.append(record_data)
-    return jsonify(login_history=output)
+        paginate(page=query['page'], per_page=query['per_page'])
+    return jsonify(
+        login_history=history.items,
+        pagination=pagination_builder(history))
 
 
 @jwt_required()
