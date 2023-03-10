@@ -6,22 +6,22 @@ from user_agents import parse
 from enum import Enum
 
 
-class DeviceType(Enum):
+class UserDeviceType(Enum):
     WEB = 'Браузер'
     MOBILE = 'Телефон'
     SMART = 'Смарт-ТВ'
 
 
-def useragent_device_parser(useragent: str) -> DeviceType | None:
+def useragent_device_parser(useragent: str) -> UserDeviceType | None:
     user_agent = parse(useragent)
     if str(user_agent).find("TV") != -1:
-        return DeviceType.SMART
+        return UserDeviceType.SMART
     if user_agent.is_mobile or user_agent.is_tablet:
-        return DeviceType.MOBILE
+        return UserDeviceType.MOBILE
     if user_agent.is_pc:
-        return DeviceType.WEB
+        return UserDeviceType.WEB
 
-    return DeviceType.WEB
+    return UserDeviceType.WEB
 
 
 def get_unix_timedelta(unix_time: str | dt.datetime | int):

@@ -2,12 +2,13 @@ import os
 from datetime import timedelta
 
 import click
-from flask import Flask
+from flask import Flask, json
 from flask import request, send_from_directory
 from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager
 from flask_redoc import Redoc
 from flask_swagger_ui import get_swaggerui_blueprint
+from werkzeug.exceptions import HTTPException
 
 import core.logger as logger
 
@@ -39,6 +40,21 @@ swagger_blueprint = get_swaggerui_blueprint(
         'app_name': 'Auth service API documentation',
     },
 )
+
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    # start with the correct headers and status code from the error
+    response = e.get_response()
+    # replace the body with JSON
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+    })
+    response.content_type = "application/json"
+    return response
 
 
 @click.command(name='create-superuser')
