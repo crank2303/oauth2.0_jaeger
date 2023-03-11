@@ -2,7 +2,7 @@ from apiflask import APIBlueprint
 from apiflask import fields as af_fields
 from flask import request, url_for
 
-from src.api.v1.schemas import Token
+from api.v1.schemas import Token
 from src.services import user as user_service, oauth as oauth_service
 from src.services.jwt_service import jwt_service
 

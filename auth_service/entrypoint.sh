@@ -11,7 +11,8 @@ while ! nc -z "$REDIS_HOST" "$REDIS_PORT"; do
       sleep 0.1
 done
 
-export FLASK_APP=pywsgi
-export FLASK_RUN_PORT=8088
+#export FLASK_APP=pywsgi
+#export FLASK_RUN_PORT=8088
 alembic upgrade head
-python3 -m flask run --with-threads --reload --host=0.0.0.0
+#python3 -m flask run --with-threads --reload --host=0.0.0.0
+gunicorn --bind "0.0.0.0:8088" pywsgi:app

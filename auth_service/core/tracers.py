@@ -2,10 +2,14 @@ from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+from opentelemetry.sdk.trace.export import BatchSpanProcessor,\
+    ConsoleSpanExporter
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+
 from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
 
-from core.settings import jaeger_settings
+from core.settings import jaeger_settings, settings
 
 
 def configure_tracer() -> None:
@@ -26,3 +30,7 @@ def configure_tracer() -> None:
             )
         )
     )
+    if settings.flask_debug:
+        trace.get_tracer_provider().add_span_processor(
+            BatchSpanProcessor(ConsoleSpanExporter())
+        )
