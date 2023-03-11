@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     limiter_config: str = Field('10 per 1 minute', env='LIMITER_CONFIG')
     flask_debug: bool = Field(False, env='FLASK_DEBUG')
+    enable_tracer: bool = Field(env="ENABLE_TRACER", default="True") == "True"
+    enable_limiter: bool = Field(env="ENABLE_LIMITER", default="True") == "True"
     
 
 class JaegerSettings(Settings):

@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 from flask_redoc import Redoc
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 import core.logger as logger
 
@@ -57,15 +58,17 @@ def handle_exception(e):
     return response
 
 
-@app.before_request
-def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('request id is required')
-
-
-# Конфигурируем и добавляем трейсер
-configure_tracer()
+if settings.enable_tracer:
+    @app.before_request
+    def before_request():
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('request id is required')
+    
+    
+    # Конфигурируем и добавляем трейсер
+    configure_tracer()
+    FlaskInstrumentor().instrument_app(app)
 
 
 @click.command(name='create-superuser')
@@ -94,7 +97,8 @@ def create_app():
     
     JWTManager(app)
 
-    limiter.init_app(app)
+    if settings.enable_limiter:
+        limiter.init_app(app)
 
     init_oauth(app)
     
