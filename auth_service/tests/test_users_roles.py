@@ -25,7 +25,7 @@ def test_detach_role(client_with_db, access_headers,
     username = create_user.login
     role = create_role.name
     response = client_with_db.delete('/v1/detach_role',
-                                   json={"username": username,
-                                         'role': role},
-                                   headers=access_headers)
+                                     json={"username": username,
+                                           'role': role},
+                                     headers=access_headers)
     assert response.status_code == HTTPStatus.OK

@@ -1,6 +1,4 @@
-import abc
-from datetime import timedelta
-from typing import Awaitable, Optional, Any
+from typing import Awaitable
 
 import redis
 from aioredis import Redis
@@ -17,13 +15,13 @@ redis_app = redis.Redis(
 class RedisStorage:
     def __init__(self, redis_conn: Redis):
         self.redis = redis_conn
-    
+
     def get(self, key: str) -> Awaitable:
         return self.redis.get(key)
-    
+
     def set(self, name: str, value: str, time: int) -> None:
         self.redis.setex(name, time, value)
         return None
-    
+
     def delete(self, key: str) -> None:
         self.redis.delete(key)

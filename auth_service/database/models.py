@@ -11,10 +11,9 @@ from .postgresql import Base
 from core.utils import UserDeviceType
 
 
-
 class Users(Base):
     __tablename__ = 'users'
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -37,7 +36,7 @@ class Users(Base):
         cascade="all, delete",
         passive_deletes=True,
     )
-    
+
     def __repr__(self):
         return f'<User {self.login}>'
 
@@ -62,7 +61,7 @@ class AuthLogs(Base):
             'postgresql_partition_by': 'LIST (user_device_type)',
             'listeners': [('after_create', create_partition)],
         })
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -103,14 +102,14 @@ class AuthLogs(Base):
         DateTime(timezone=True),
         default=datetime,
     )
-    
+
     def __repr__(self):
         return f'<AuthHLog {self.user_id}:{self.updated_at}>'
 
 
 class Roles(Base):
     __tablename__ = 'roles'
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -123,14 +122,14 @@ class Roles(Base):
         unique=True,
         nullable=False,
     )
-    
+
     def __repr__(self):
         return f'<Roles {self.name}>'
 
 
 class UsersRoles(Base):
     __tablename__ = 'users_roles'
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -150,7 +149,7 @@ class UsersRoles(Base):
 
 class Token(Base):
     __tablename__ = 'token'
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -170,7 +169,7 @@ class Token(Base):
 
 class SocialUser(Base):
     __tablename__ = 'social_user'
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -193,7 +192,7 @@ class SocialAccount(Base):
     __table_args__ = (
         UniqueConstraint("social_id", "social_name", name="social_uc"),
     )
-    
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -218,6 +217,6 @@ class SocialAccount(Base):
         String(255),
         nullable=False,
     )
-    
+
     def __str__(self) -> str:
         return f'<SocialAccount {self.social_name}:{self.user_id}>'

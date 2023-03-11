@@ -22,6 +22,7 @@ REFRESH_EXPIRES = timedelta(days=30)
 
 storage = redis_app
 
+
 def sign_up():
     username = request.values.get("email", None)
     password = request.values.get("password", None)
