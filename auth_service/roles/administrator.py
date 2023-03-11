@@ -16,12 +16,12 @@ def required(role):
                 case "admin":
                     if claims["is_administrator"]:
                         return fn(*args, **kwargs)
-                    return jsonify(msg="Admins only!"), HTTPStatus.FORBIDDEN 
+                    return jsonify(msg="Admins only!"), HTTPStatus.FORBIDDEN
                 case "manager":
                     if claims["is_administrator"] or \
                             claims["is_manager"]:
                         return fn(*args, **kwargs)
-                    return jsonify(msg="Admins and managers only!"), HTTPStatus.FORBIDDEN 
+                    return jsonify(msg="Admins and managers only!"), HTTPStatus.FORBIDDEN
 
         return decorator
 

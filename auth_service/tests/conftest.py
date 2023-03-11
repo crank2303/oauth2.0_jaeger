@@ -1,19 +1,17 @@
 import base64
 import os
 import sys
+import uuid
 
 import pytest
-
-sys.path.append(os.path.dirname(__file__) + '/..')
 from app import create_app
-
 from flask_sqlalchemy import SQLAlchemy
-
-from utils import settings
-import uuid
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
+from utils import settings
+
+sys.path.append(os.path.dirname(__file__) + '/..')
 
 db_settings = settings.get_settings()
 
@@ -148,7 +146,7 @@ def create_user():
 
 
 @pytest.fixture()
-def token_response(create_user,  client_with_db):
+def token_response(create_user, client_with_db):
     user = create_user.login
     password = create_user.password
     my_str = ':'.join((user, password)).encode('utf-8')
@@ -176,4 +174,3 @@ def refresh_headers(token_response):
         'Authorization': 'Bearer ' + refresh_token
     }
     return headers
-

@@ -66,8 +66,7 @@ if settings.enable_tracer:
         request_id = request.headers.get('X-Request-Id')
         if not request_id:
             raise RuntimeError('request id is required')
-    
-    
+
     # Конфигурируем и добавляем трейсер
     configure_tracer()
     FlaskInstrumentor().instrument_app(app)
@@ -91,23 +90,23 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = settings.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_TOKEN_EXPIRES
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = REFRESH_TOKEN_EXPIRES
-    
+
     app.cli.add_command(create_superuser)
-    
+
     app.register_blueprint(swagger_blueprint)
     app.register_blueprint(blueprint, url_prefix='/api/v1')
-    
+
     JWTManager(app)
 
     if settings.enable_limiter:
         limiter.init_app(app)
 
     init_oauth(app)
-    
+
     @app.route('/static/<path:path>')
     def send_static(path):
         return send_from_directory('static', path)
-    
+
     return app
 
 

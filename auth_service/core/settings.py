@@ -27,14 +27,14 @@ class Settings(BaseSettings):
     flask_debug: bool = Field(False, env='FLASK_DEBUG')
     enable_tracer: bool = Field(env="ENABLE_TRACER", default="True") == "True"
     enable_limiter: bool = Field(env="ENABLE_LIMITER", default="True") == "True"
-    
+
 
 class JaegerSettings(Settings):
     agent_host: str = Field('jaeger', env='JAEGER_HOST')
     agent_port: int = Field(6831, env='JAEGER_AGENT_PORT')
     sampling_ratio: float = Field(0.8, env='JAEGER_SAMPLING_RATIO')
     auth_project_name: str = Field('AuthorizationService', env='AUTH_PROJECT_NAME')
-    
+
 
 class OauthClientSettings(Settings):
     google_client_id: str = Field('', env='GOOGLE_CLIENT_ID')

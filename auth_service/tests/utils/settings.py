@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     SERVICE_URL: str = os.getenv("APP_URL")
-    
+
     USERNAME = os.getenv('POSTGRES_USER')
     PASSWORD = os.getenv('POSTGRES_PASSWORD')
     HOST = os.getenv('PG_HOST')
