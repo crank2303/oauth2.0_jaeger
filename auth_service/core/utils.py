@@ -1,9 +1,9 @@
 import datetime as dt
 import secrets
 import string
+from enum import Enum
 
 from user_agents import parse
-from enum import Enum
 
 
 class UserDeviceType(Enum):

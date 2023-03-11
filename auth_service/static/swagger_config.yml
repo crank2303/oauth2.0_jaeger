@@ -4,7 +4,7 @@ info:
   description: API services for online-cinema
   version: '1.0'
 servers:
-  - url: http://auth_service:8088/api/v1
+  - url: http://auth_service:8087/api/v1
 tags:
   - name: Managing Roles
     description: API for CRUD roles
@@ -191,14 +191,14 @@ paths:
           description: New role was deleted
         '404':
           description: Role doesnt exist in database
-  /register:
+  /sign_up:
     post:
       tags:
         - Managing Users
       summary: Создание нового пользователя
       parameters:
         - in: query
-          name: login
+          name: email
           schema:
             type: string
           required: true

@@ -104,4 +104,3 @@ def detach_role_from_user(user: Users, role: Roles):
         session.query(UsersRoles).filter_by(user_id=user.id,
                                             role_id=role.id).delete()
         session.commit()
-

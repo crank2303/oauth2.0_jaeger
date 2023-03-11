@@ -1,8 +1,10 @@
+
 import click
 
 from datetime import timedelta
 from flask import Flask, json
 from flask import request, send_from_directory
+
 from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager
 from flask_redoc import Redoc
@@ -11,15 +13,15 @@ from werkzeug.exceptions import HTTPException
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 import core.logger as logger
-
-
 from api.v1.blueprint import blueprint
 from core.settings import settings
+
 from core.limiters import limiter
 from core.oauth import init_oauth
 from database.models import Roles
 from database.service import create_user, assign_role_to_user
 from core.tracers import configure_tracer
+
 
 ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 REFRESH_TOKEN_EXPIRES = timedelta(days=7)
