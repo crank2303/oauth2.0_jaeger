@@ -15,7 +15,8 @@ from apiflask import pagination_builder
 from database.cache_redis import redis_app
 from database.models import Users, AuthLogs
 from database.postgresql import db_session
-from database.service import auth_log, create_user, change_password, change_username
+from database.service import auth_log, create_user, change_password,\
+    change_username
 
 ACCESS_EXPIRES = timedelta(hours=1)
 REFRESH_EXPIRES = timedelta(days=30)
@@ -27,13 +28,17 @@ def sign_up():
     username = request.values.get("email", None)
     password = request.values.get("password", None)
     if not username or not password:
-        return make_response('email or password are empty!', HTTPStatus.UNAUTHORIZED,
-                             {'WWW-Authenticate': 'Basic realm="Login required!"'})
+        return make_response(
+            'email or password are empty!', HTTPStatus.UNAUTHORIZED,
+            {'WWW-Authenticate': 'Basic realm="Login required!"'},
+        )
     with db_session() as session:
         user = session.query(Users).filter_by(login=username).first()
     if user:
-        return make_response('Email has already registered!', HTTPStatus.UNAUTHORIZED,
-                             {'WWW-Authenticate': 'Basic realm="Login required!"'})
+        return make_response(
+            'Email has already registered!', HTTPStatus.UNAUTHORIZED,
+            {'WWW-Authenticate': 'Basic realm="Login required!"'},
+        )
 
     new_user = create_user(username, password)
 
@@ -41,8 +46,14 @@ def sign_up():
     refresh_token = create_refresh_token(identity=new_user.id)
     user_agent = request.headers['user_agent']
 
-    auth_log(user=new_user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser,
-             updated_at=datetime.now(), user_device_type='WEB')
+    auth_log(
+        user=new_user,
+        user_agent=user_agent,
+        ip_address=request.remote_addr,
+        log_type=request.user_agent.browser,
+        updated_at=datetime.now(),
+        user_device_type='WEB',
+    )
 
     key = ':'.join(('user_refresh', user_agent, get_jti(refresh_token)))
     storage.set(key, str(new_user.id), ex=REFRESH_EXPIRES)
@@ -56,22 +67,32 @@ def login():
     auth = request.authorization
 
     if not auth.username or not auth.password:
-        return make_response('Email or password are empty!', HTTPStatus.UNAUTHORIZED,
-                             {'WWW-Authenticate': 'Basic realm="Login required!"'})
+        return make_response(
+            'Email or password are empty!', HTTPStatus.UNAUTHORIZED,
+            {'WWW-Authenticate': 'Basic realm="Login required!"'},
+        )
 
     with db_session() as session:
         user = session.query(Users).filter_by(login=auth.username).first()
     if not user:
-        return make_response('Username does not exist!', HTTPStatus.UNAUTHORIZED,
-                             {'WWW-Authenticate': 'Basic realm="Login required!"'})
+        return make_response(
+            'Username does not exist!', HTTPStatus.UNAUTHORIZED,
+            {'WWW-Authenticate': 'Basic realm="Login required!"'},
+        )
 
     if check_password_hash(user.password, auth.password):
         access_token = create_access_token(identity=user.id, fresh=True)
         refresh_token = create_refresh_token(identity=user.id)
         user_agent = request.headers['user_agent']
 
-        auth_log(user=user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser,
-                 updated_at=datetime.now(), user_device_type='WEB')
+        auth_log(
+            user=user,
+            user_agent=user_agent,
+            ip_address=request.remote_addr,
+            log_type=request.user_agent.browser,
+            updated_at=datetime.now(),
+            user_device_type='WEB',
+        )
 
         key = ':'.join(('user_refresh', user_agent, get_jti(refresh_token)))
         storage.set(key, str(user.id), ex=REFRESH_EXPIRES)
