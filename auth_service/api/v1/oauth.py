@@ -3,8 +3,9 @@ from apiflask import fields as af_fields
 from flask import request, url_for
 
 from api.v1.schemas import Token
-from src.services import user as user_service, oauth as oauth_service
-from src.services.jwt_service import jwt_service
+from core.limiters import rate_limit
+from services import user as user_service, oauth as oauth_service
+from services.jwt_service import jwt_service
 
 
 oauth_route = APIBlueprint(
@@ -18,6 +19,7 @@ oauth_route = APIBlueprint(
 @oauth_route.get('/login/<string:social_name>/')
 @oauth_route.output({'url': af_fields.URL()},
                     description='Ссылка от стороннего сервиса авторизации')
+@rate_limit()
 def get_redirect_url(social_name):
     redirect_url = url_for(
         'oauth.auth',
@@ -34,6 +36,7 @@ def get_redirect_url(social_name):
 @oauth_route.get('/auth/<string:social_name>/')
 @oauth_route.output(Token,
                     description='Токены сервиса авторизации')
+@rate_limit()
 def auth(social_name):
     user = oauth_service.get_user_from_social(social_name)
 

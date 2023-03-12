@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     jwt_refresh_token_expires: int = Field(120, env='JWT_REFRESH_TOKEN_EXPIRES')
 
     limiter_config: str = Field('10 per 1 minute', env='LIMITER_CONFIG')
+    limiter_count: int = Field(10, env='REQUEST_LIMIT_PER_MINUTE')
     flask_debug: bool = Field(False, env='FLASK_DEBUG')
     enable_tracer: bool = Field(env="ENABLE_TRACER", default="True") == "True"
     enable_limiter: bool = Field(env="ENABLE_LIMITER", default="True") == "True"

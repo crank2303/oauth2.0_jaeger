@@ -21,6 +21,7 @@ from core.oauth import init_oauth
 from database.models import Roles
 from database.service import create_user, assign_role_to_user
 from core.tracers import configure_tracer
+from api.v1.oauth import oauth_route
 
 
 ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
@@ -106,6 +107,9 @@ def create_app():
     @app.route('/static/<path:path>')
     def send_static(path):
         return send_from_directory('static', path)
+
+    api_v1 = '/api/v1'
+    app.register_blueprint(oauth_route, url_prefix=f'{api_v1}/oauth')
 
     return app
 
