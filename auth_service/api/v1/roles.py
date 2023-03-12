@@ -14,7 +14,8 @@ def create_role():
     role = request.values.get('role', None)
     if not role:
         return make_response('New role is empty', HTTPStatus.BAD_REQUEST)
-    db_role = db_session().query(Roles).filter_by(name=role).first()
+    with db_session() as session:
+        db_role = session.query(Roles).filter_by(name=role).first()
     if db_role:
         return make_response('Role is already exist', HTTPStatus.BAD_REQUEST)
     create_role_db(role)
@@ -27,7 +28,8 @@ def delete_role():
     if not role:
         return make_response('Role is empty',
                              HTTPStatus.BAD_REQUEST)
-    db_role = db_session().query(Roles).filter_by(name=role).first()
+    with db_session() as session:
+        db_role = session.query(Roles).filter_by(name=role).first()
     if not db_role:
         return make_response('Role does not exist',
                              HTTPStatus.NOT_FOUND)
@@ -42,7 +44,8 @@ def change_role():
     if not role or not new_role:
         return make_response('Role or new name is empty',
                              HTTPStatus.BAD_REQUEST)
-    db_role = db_session().query(Roles).filter_by(name=role).first()
+    with db_session() as session:
+        db_role = session.query(Roles).filter_by(name=role).first()
     if not db_role:
         return make_response('Role does not exist', HTTPStatus.NOT_FOUND)
     change_role_db(role, new_role)
@@ -51,6 +54,7 @@ def change_role():
 
 @required(role='manager')
 def roles_list():
-    roles = db_session().query(Roles).all()
+    with db_session() as session:
+        roles = session.query(Roles).all()
     output = [role.name for role in roles]
     return jsonify(roles=output)

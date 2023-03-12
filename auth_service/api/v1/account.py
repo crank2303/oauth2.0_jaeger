@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from http import HTTPStatus
 
 from flask import jsonify, request, make_response
@@ -14,7 +14,7 @@ from apiflask import pagination_builder
 
 from database.cache_redis import redis_app
 from database.models import Users, AuthLogs
-from database.postgresql import Sessionlocal
+from database.postgresql import db_session
 from database.service import auth_log, create_user, change_password, change_username
 
 ACCESS_EXPIRES = timedelta(hours=1)
@@ -29,8 +29,8 @@ def sign_up():
     if not username or not password:
         return make_response('email or password are empty!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
-
-    user = Sessionlocal().query(Users).filter_by(login=username).first()
+    with db_session() as session:
+        user = session.query(Users).filter_by(login=username).first()
     if user:
         return make_response('Email has already registered!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -41,7 +41,8 @@ def sign_up():
     refresh_token = create_refresh_token(identity=new_user.id)
     user_agent = request.headers['user_agent']
 
-    auth_log(user=new_user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser)
+    auth_log(user=new_user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser,
+             updated_at=datetime.now(), user_device_type='WEB')
 
     key = ':'.join(('user_refresh', user_agent, get_jti(refresh_token)))
     storage.set(key, str(new_user.id), ex=REFRESH_EXPIRES)
@@ -58,7 +59,8 @@ def login():
         return make_response('Email or password are empty!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
-    user = Sessionlocal().query(Users).filter_by(login=auth.username).first()
+    with db_session() as session:
+        user = session.query(Users).filter_by(login=auth.username).first()
     if not user:
         return make_response('Username does not exist!', HTTPStatus.UNAUTHORIZED,
                              {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -68,7 +70,8 @@ def login():
         refresh_token = create_refresh_token(identity=user.id)
         user_agent = request.headers['user_agent']
 
-        auth_log(user=user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser)
+        auth_log(user=user, user_agent=user_agent, ip_address=request.remote_addr, log_type=request.user_agent.browser,
+                 updated_at=datetime.now(), user_device_type='WEB')
 
         key = ':'.join(('user_refresh', user_agent, get_jti(refresh_token)))
         storage.set(key, str(user.id), ex=REFRESH_EXPIRES)
@@ -131,12 +134,14 @@ def login_history(query):
 def change_login():
 
     new_username = request.values.get('new_username')
-    user = Users.query.filter_by(login=new_username).first()
+    with db_session() as session:
+        user = session.query(Users).filter_by(login=new_username).first()
     if user:
         return make_response('Login already existed', HTTPStatus.BAD_REQUEST)
 
     identity = get_jwt_identity()
-    current_user = Users.query.filter_by(id=identity).first()
+    with db_session() as session:
+        current_user = session.query(Users).filter_by(id=identity).first()
     change_username(user=current_user, new_login=new_username)
 
     return jsonify(msg='Login successfully changed')
@@ -148,7 +153,8 @@ def change_password():
     new_password = request.values.get('new_password')
 
     identity = get_jwt_identity()
-    current_user = Users.query.filter_by(id=identity).first()
+    with db_session() as session:
+        current_user = session.query(Users).filter_by(id=identity).first()
     change_password(current_user, new_password)
 
     access_token = create_access_token(identity=identity, fresh=True)
